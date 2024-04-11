@@ -6,22 +6,14 @@ namespace LegacyApp
     {
         public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId)
         {
-            if (!IsValidName(firstName, lastName) || !IsValidEmail(email) || !IsOldEnough(dateOfBirth))
+            if (!IsValidName(firstName, lastName) || !IsValidEmail(email) || !IsValidAge(dateOfBirth))
             {
                 return false;
             }
 
             var clientRepository = new ClientRepository();
             var client = clientRepository.GetById(clientId);
-
-            var user = new User
-            {
-                Client = client,
-                DateOfBirth = dateOfBirth,
-                EmailAddress = email,
-                FirstName = firstName,
-                LastName = lastName
-            };
+            var user = new User(client, dateOfBirth, email, firstName, lastName);
             
             if (client.Type == "VeryImportantClient")
             {
@@ -62,10 +54,10 @@ namespace LegacyApp
 
         private bool IsValidEmail(string email)
         {
-            return email.Contains("@") && email.Contains(".");
+            return !string.IsNullOrEmpty(email) && email.Contains("@") && email.Contains(".");
         }
 
-        private bool IsOldEnough(DateTime dateOfBirth)
+        private bool IsValidAge(DateTime dateOfBirth)
         {
             var age = DateTime.Today.Year - dateOfBirth.Year;
             if (DateTime.Today < dateOfBirth.AddYears(age))
